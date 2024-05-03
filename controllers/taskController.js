@@ -1,76 +1,83 @@
-// taskController.js
-const Task = require("../models/taskModel");
+const Task = require('../models/taskModel');
+
+// Create a new task
+const createTask = async (req, res) => {
+  try {
+    const { title, description, attachment, startDate, endDate, user, status } = req.body;
+    const task = new Task({ title, description, attachment, startDate, endDate, user, status });
+    await task.save();
+    res.status(201).json(task);
+  } catch (error) {
+    console.error('Error creating task:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 // Get all tasks
-exports.getAllTasks = async (req, res) => {
+const getAllTasks = async (req, res) => {
   try {
     const tasks = await Task.find();
-    res.json(tasks);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error('Error getting tasks:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // Get a single task by ID
-exports.getTaskById = async (req, res) => {
+const getTaskById = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
-    if (task) {
-      res.json(task);
-    } else {
-      res.status(404).json({ message: "Task not found" });
+    const { taskId } = req.params;
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
     }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Create a new task
-exports.createTask = async (req, res) => {
-  const task = new Task({
-    title: req.body.title,
-    description: req.body.description,
-    // Add other task properties here
-  });
-
-  try {
-    const newTask = await task.save();
-    res.status(201).json(newTask);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(200).json(task);
+  } catch (error) {
+    console.error('Error getting task by ID:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // Update a task by ID
-exports.updateTask = async (req, res) => {
+const updateTask = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
-    if (task) {
-      task.title = req.body.title || task.title;
-      task.description = req.body.description || task.description;
-      // Update other task properties here
-
-      const updatedTask = await task.save();
-      res.json(updatedTask);
-    } else {
-      res.status(404).json({ message: "Task not found" });
+    const { taskId } = req.params;
+    const { title, description, attachment, startDate, endDate, user, status } = req.body;
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      { title, description, attachment, startDate, endDate, user, status },
+      { new: true }
+    );
+    if (!updatedTask) {
+      return res.status(404).json({ message: 'Task not found' });
     }
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    console.error('Error updating task:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // Delete a task by ID
-exports.deleteTask = async (req, res) => {
+const deleteTask = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
-    if (task) {
-      await task.remove();
-      res.json({ message: "Task deleted" });
-    } else {
-      res.status(404).json({ message: "Task not found" });
+    const { taskId } = req.params;
+    const deletedTask = await Task.findByIdAndDelete(taskId);
+    if (!deletedTask) {
+      return res.status(404).json({ message: 'Task not found' });
     }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(200).json({ message: 'Task deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
+};
+
+module.exports = {
+  createTask,
+  getAllTasks,
+  getTaskById,
+  updateTask,
+  deleteTask
 };

@@ -37,36 +37,49 @@ exports.createUser = async (req, res) => {
   }
 };
 
-// Update a user by ID
-exports.updateUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (user) {
-      user.username = req.body.username || user.username;
-      user.email = req.body.email || user.email;
-      // Update other user properties here
-
-      const updatedUser = await user.save();
-      res.json(updatedUser);
-    } else {
-      res.status(404).json({ message: "User not found" });
-    }
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
 
 // Delete a user by ID
 exports.deleteUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (user) {
-      await user.remove();
-      res.json({ message: "User deleted" });
-    } else {
-      res.status(404).json({ message: "User not found" });
+    const { id } = req.params;
+
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+
+    // You might want to delete associated notifications and tasks here
+
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+// Update a user by ID
+
+
+exports.updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, password } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { name, email, password },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+

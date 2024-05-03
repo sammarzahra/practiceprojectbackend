@@ -1,74 +1,83 @@
-// notificationController.js
-const Notification = require("../models/notificationModel");
+const Notification = require('../models/notificationModel');
+
+// Create a new notification
+const createNotification = async (req, res) => {
+  try {
+    const { message, date, user, task } = req.body;
+    const notification = new Notification({ message, date, user, task });
+    await notification.save();
+    res.status(201).json(notification);
+  } catch (error) {
+    console.error('Error creating notification:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 // Get all notifications
-exports.getAllNotifications = async (req, res) => {
+const getAllNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find();
-    res.json(notifications);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(200).json(notifications);
+  } catch (error) {
+    console.error('Error getting notifications:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // Get a single notification by ID
-exports.getNotificationById = async (req, res) => {
+const getNotificationById = async (req, res) => {
   try {
-    const notification = await Notification.findById(req.params.id);
-    if (notification) {
-      res.json(notification);
-    } else {
-      res.status(404).json({ message: "Notification not found" });
+    const { notificationId } = req.params;
+    const notification = await Notification.findById(notificationId);
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
     }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Create a new notification
-exports.createNotification = async (req, res) => {
-  const notification = new Notification({
-    message: req.body.message,
-    // Add other notification properties here
-  });
-
-  try {
-    const newNotification = await notification.save();
-    res.status(201).json(newNotification);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(200).json(notification);
+  } catch (error) {
+    console.error('Error getting notification by ID:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // Update a notification by ID
-exports.updateNotification = async (req, res) => {
+const updateNotification = async (req, res) => {
   try {
-    const notification = await Notification.findById(req.params.id);
-    if (notification) {
-      notification.message = req.body.message || notification.message;
-      // Update other notification properties here
-
-      const updatedNotification = await notification.save();
-      res.json(updatedNotification);
-    } else {
-      res.status(404).json({ message: "Notification not found" });
+    const { notificationId } = req.params;
+    const { message, date, user, task, status } = req.body;
+    const updatedNotification = await Notification.findByIdAndUpdate(
+      notificationId,
+      { message, date, user, task, status },
+      { new: true }
+    );
+    if (!updatedNotification) {
+      return res.status(404).json({ message: 'Notification not found' });
     }
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(200).json(updatedNotification);
+  } catch (error) {
+    console.error('Error updating notification:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // Delete a notification by ID
-exports.deleteNotification = async (req, res) => {
+const deleteNotification = async (req, res) => {
   try {
-    const notification = await Notification.findById(req.params.id);
-    if (notification) {
-      await notification.remove();
-      res.json({ message: "Notification deleted" });
-    } else {
-      res.status(404).json({ message: "Notification not found" });
+    const { notificationId } = req.params;
+    const deletedNotification = await Notification.findByIdAndDelete(notificationId);
+    if (!deletedNotification) {
+      return res.status(404).json({ message: 'Notification not found' });
     }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(200).json({ message: 'Notification deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
+};
+
+module.exports = {
+  createNotification,
+  getAllNotifications,
+  getNotificationById,
+  updateNotification,
+  deleteNotification
 };
