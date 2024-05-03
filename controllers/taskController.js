@@ -74,10 +74,34 @@ const deleteTask = async (req, res) => {
   }
 };
 
+
+// Get paginated list of tasks
+const getTasks = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = 5; // Number of tasks per page
+    const skip = (page - 1) * pageSize;
+
+    const tasks = await Task.find().skip(skip).limit(pageSize);
+    const totalTasks = await Task.countDocuments();
+
+    res.status(200).json({
+      data: tasks,
+      currentPage: page,
+      totalPages: Math.ceil(totalTasks / pageSize)
+    });
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 module.exports = {
   createTask,
   getAllTasks,
   getTaskById,
   updateTask,
-  deleteTask
+  deleteTask,
+  getTasks
 };
