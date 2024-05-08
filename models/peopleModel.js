@@ -24,19 +24,19 @@ const peopleSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
-  },
-  notifications: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Notification'
-    }
-  ],
-  task: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Task',
-    required: true
+    
   }
+  // notifications: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'Notification'
+  //   }
+  // ],
+  // task: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Task',
+  //   required: true
+  // }
 });
 
 const People = mongoose.model('People', peopleSchema);
