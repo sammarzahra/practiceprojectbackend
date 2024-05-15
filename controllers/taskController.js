@@ -1,17 +1,20 @@
 const Task = require('../models/taskModel');
+// const multer = require("multer");
 
-// Create a new task
 const createTask = async (req, res) => {
   try {
-    const { title, description,  startDate, endDate } = req.body;
-    const task = new Task({ title, description,  startDate, endDate });
-    await task.save();
-    res.status(201).json(task);
+    const { title, description, startDate, endDate } = req.body;
+    // const attachment =  // File uploaded using multer
+    console.log( title, description, startDate, endDate, req.file?.filename);
+    // Use title, description, startDate, endDate, and file as needed
+     const response =  await Task.create({ title, description, startDate, endDate, attachment:req.file?.filename }) 
+    res.status(201).json(response);
   } catch (error) {
     console.error('Error creating task:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // Get all tasks
 const getAllTasks = async (req, res) => {

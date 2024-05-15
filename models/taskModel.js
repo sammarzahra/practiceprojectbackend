@@ -14,11 +14,11 @@ const taskSchema = new mongoose.Schema({
     required:false
   },
   startDate: {
-    type: Date,
+    type: String,
     required: true
   },
   endDate: {
-    type: Date,
+    type: String,
     required: true
   },
   user: {

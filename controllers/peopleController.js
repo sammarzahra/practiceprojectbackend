@@ -43,10 +43,10 @@ const getPeopleById = async (req, res) => {
 const updatePeople = async (req, res) => {
   try {
     const { peopleId } = req.params;
-    const { customerName, projectName, taskStart, taskEnd, overdueDate, user, task, notifications } = req.body;
+    const { customerName, projectName, taskStart, taskEnd, overdueDate  } = req.body;
     const updatedPeople = await People.findByIdAndUpdate(
       peopleId,
-      { customerName, projectName, taskStart, taskEnd, overdueDate, user, task, notifications },
+      { customerName, projectName, taskStart, taskEnd, overdueDate },
       { new: true }
     );
     if (!updatedPeople) {
@@ -74,26 +74,26 @@ const deletePeople = async (req, res) => {
   }
 };
 
-// Get paginated list of people
-const getPeople = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const pageSize = 5; // Number of people per page
-    const skip = (page - 1) * pageSize;
 
-    const people = await People.find().skip(skip).limit(pageSize);
-    const totalPeople = await People.countDocuments();
+// const getPeople = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const pageSize = 6; // Number of people per page
+//     const skip = (page - 1) * pageSize;
 
-    res.status(200).json({
-      data: people,
-      currentPage: page,
-      totalPages: Math.ceil(totalPeople / pageSize)
-    });
-  } catch (error) {
-    console.error('Error fetching people:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+//     const people = await People.find().skip(skip).limit(pageSize);
+//     const totalPeople = await People.countDocuments();
+
+//     res.status(200).json({
+//       data: people,
+//       currentPage: page,
+//       totalPages: Math.ceil(totalPeople / pageSize)
+//     });
+//   } catch (error) {
+//     console.error('Error fetching people:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
 
 
 module.exports = {
@@ -101,6 +101,5 @@ module.exports = {
   getAllPeople,
   getPeopleById,
   updatePeople,
-  deletePeople,
-  getPeople
+  deletePeople
 };
